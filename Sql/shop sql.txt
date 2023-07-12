@@ -1,0 +1,306 @@
+Enter password: ****
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 13
+Server version: 5.5.16 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| employee           |
+| mysql              |
+| performance_schema |
+| ramanujan          |
+| shop               |
+| test               |
++--------------------+
+7 rows in set (0.03 sec)
+
+mysql> use employee
+Database changed
+mysql> show tables;
++--------------------+
+| Tables_in_employee |
++--------------------+
+| emp                |
++--------------------+
+1 row in set (0.03 sec)
+
+mysql> use shop
+Database changed
+mysql> show tables;
++----------------+
+| Tables_in_shop |
++----------------+
+| customers      |
+| orders         |
+| shippings      |
++----------------+
+3 rows in set (0.05 sec)
+
+mysql> select*from  customers;
++-------------+------------+-----------+------+---------+
+| customer_id | first_name | last_name | age  | country |
++-------------+------------+-----------+------+---------+
+|           1 | John       | Doe       |   31 | USA     |
+|           2 | Robert     | Luna      |   22 | USA     |
+|           3 | David      | Robinson  |   22 | UK      |
+|           4 | John       | Reinhardt |   25 | UK      |
+|           5 | Betty      | Doe       |   28 | UAE     |
++-------------+------------+-----------+------+---------+
+5 rows in set (0.04 sec)
+
+mysql> select *from orders;
++----------+----------+--------+-------------+
+| order_id | item     | amount | customer_id |
++----------+----------+--------+-------------+
+|        1 | Keyboard |    400 |           4 |
+|        2 | Mouse    |    300 |           4 |
+|        3 | Monitor  |  12000 |           3 |
+|        4 | Keyboard |    400 |           1 |
+|        5 | Mousepad |    250 |           2 |
++----------+----------+--------+-------------+
+5 rows in set (0.06 sec)
+
+mysql> select *from shippings;
++-------------+-----------+----------+
+| shipping_id | status    | customer |
++-------------+-----------+----------+
+|           1 | Pending   |        2 |
+|           2 | Pending   |        4 |
+|           3 | Delivered |        3 |
+|           4 | Pending   |        5 |
+|           5 | Delivered |        1 |
++-------------+-----------+----------+
+5 rows in set (0.01 sec)
+
+mysql> ELECT c.first_name,c.last_name,COUNT(o.order_id) AS order_count
+    ->
+    -> FROM customers c
+    ->
+    -> LEFT JOIN orders o ON c.customer_id=o.order_id
+    ->
+    -> GROUP BY c.customer_id;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'ELECT c.first_name,c.last_name,COUNT(o.order_id) AS order_count
+
+FROM customers ' at line 1
+mysql> ELECT c.first_name,c.last_name,COUNT(o.order_id) AS order_count
+    ->
+    -> FROM customers c
+    ->
+    -> LEFT JOIN orders o ON c.customer_id=o.order_id
+    ->
+    -> SELECT c.first_name,c.last_name,COUNT(o.order_id) AS order_count
+    ->
+    -> FROM customers c
+    ->
+    -> LEFT JOIN orders o ON c.customer_id=o.order_id
+    ->
+    -> GROUP BY c.customer_id;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'ELECT c.first_name,c.last_name,COUNT(o.order_id) AS order_count
+
+FROM customers ' at line 1
+mysql> SELECT c.first_name,c.last_name,COUNT(o.order_id) AS order_count
+    ->
+    -> FROM customers c
+    ->
+    -> LEFT JOIN orders o ON c.customer_id=o.order_id
+    ->
+    -> GROUP BY c.customer_id;
++------------+-----------+-------------+
+| first_name | last_name | order_count |
++------------+-----------+-------------+
+| John       | Doe       |           1 |
+| Robert     | Luna      |           1 |
+| David      | Robinson  |           1 |
+| John       | Reinhardt |           1 |
+| Betty      | Doe       |           1 |
++------------+-----------+-------------+
+5 rows in set (0.02 sec)
+
+mysql> SELECT c.first_name,c.last_name,SUM(o.amount) AS Total_Amount
+    ->
+    -> FROM customers c
+    ->
+    -> LEFT JOIN orders o ON c.customer_id=o.customer_id
+    ->
+    -> GROUP BY c.customer_id;
++------------+-----------+--------------+
+| first_name | last_name | Total_Amount |
++------------+-----------+--------------+
+| John       | Doe       |          400 |
+| Robert     | Luna      |          250 |
+| David      | Robinson  |        12000 |
+| John       | Reinhardt |          700 |
+| Betty      | Doe       |         NULL |
++------------+-----------+--------------+
+5 rows in set (0.01 sec)
+
+mysql> SELECT c.first_name,c.last_name
+    ->
+    -> FROM customers c
+    ->
+    -> INNER JOIN shippings s ON c.customer_id=s.customer
+    ->
+    -> WHERE s.status='Pending';
++------------+-----------+
+| first_name | last_name |
++------------+-----------+
+| Robert     | Luna      |
+| John       | Reinhardt |
+| Betty      | Doe       |
++------------+-----------+
+3 rows in set (0.02 sec)
+
+mysql>
+mysql> SELECT c.first_name,c.last_name
+    ->
+    -> FROM customers c
+    ->
+    -> INNER JOIN shippings s ON c.customer_id=s.customer
+    ->
+    -> WHERE s.status='Delivered';
++------------+-----------+
+| first_name | last_name |
++------------+-----------+
+| David      | Robinson  |
+| John       | Doe       |
++------------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT c.first_name,c.last_name
+    ->
+    -> FROM customers c
+    ->
+    -> INNER JOIN orders o ON c.customer_id=o.customer_id
+    ->
+    -> WHERE o.item='Keyboard';[11:57 AM] Karunakar Eeede
++------------+-----------+
+| first_name | last_name |
++------------+-----------+
+| John       | Reinhardt |
+| John       | Doe       |
++------------+-----------+
+2 rows in set (0.00 sec)
+
+    ->
+    -> SELECT country, COUNT(*) AS customer_count
+    ->
+    -> FROM Customers
+    ->
+    -> GROUP BY country;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '[11:57 AM] Karunakar Eeede
+
+SELECT country, COUNT(*) AS customer_count
+
+FROM Cus' at line 1
+mysql> SELECT c.first_name, c.last_name, o.amount
+    ->
+    -> FROM Customers c
+    ->
+    -> INNER JOIN Orders o ON c.customer_id = o.customer_id
+    ->
+    -> WHERE o.amount = (
+    ->
+    ->     SELECT MAX(amount)
+    ->
+    ->     FROM Orders
+    ->
+    -> );
++------------+-----------+--------+
+| first_name | last_name | amount |
++------------+-----------+--------+
+| David      | Robinson  |  12000 |
++------------+-----------+--------+
+1 row in set (0.02 sec)
+
+mysql> SELECT first_name, last_name
+    ->
+    -> FROM Customers
+    ->
+    -> WHERE customer_id NOT IN (
+    ->
+    ->     SELECT DISTINCT customer_id
+    ->
+    ->     FROM Orders
+    ->
+    -> );
++------------+-----------+
+| first_name | last_name |
++------------+-----------+
+| Betty      | Doe       |
++------------+-----------+
+1 row in set (0.01 sec)
+
+mysql>
+mysql> SELECT c.first_name, c.last_name, COUNT(*) AS pending_shipments
+    ->
+    -> FROM Customers c
+    ->
+    -> INNER JOIN Shippings s ON c.customer_id = s.customer
+    ->
+    -> WHERE s.status = 'Pending'
+    ->
+    -> GROUP BY c.customer_id;
++------------+-----------+-------------------+
+| first_name | last_name | pending_shipments |
++------------+-----------+-------------------+
+| Robert     | Luna      |                 1 |
+| John       | Reinhardt |                 1 |
+| Betty      | Doe       |                 1 |
++------------+-----------+-------------------+
+3 rows in set (0.02 sec)
+
+mysql>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
